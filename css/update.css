@@ -1,0 +1,16 @@
+/* datatable */
+.table-container {
+    margin: auto;
+    width: 90%;
+    overflow-x: auto;
+}
+
+.text-wrap {
+    white-space: normal !important;
+    word-wrap: break-word;
+}
+
+.dataTables_wrapper .dataTables_length, 
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 10px; 
+}
