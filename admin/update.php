@@ -324,5 +324,124 @@ $(document).on('click', '.edit-btn', function () {
 </script>
 
 
+<!-- Responsive Table Wrapper -->
+<div class="table-container">
+    <h2 style="color: #333;">Identification</h2><br>
+    <form id="addIdentificationForm" method="POST" action="../function/add-identification.php" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+        <input type="text" name="identification_text" placeholder="Enter identification question" required style="flex: 1; min-width: 300px;">
+        <input type="text" name="answer" placeholder="Enter correct answer" required style="flex: 1; min-width: 200px;">
+        <button type="submit" style="background: #00929E; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">Add Question</button>
+    </form>
+
+    <table id="identificationTable" class="display responsive nowrap compact">
+        <thead>
+            <tr>
+                <th style="text-align: center;">Question</th>
+                <th style="text-align: center;">Answer</th>
+                <th style="text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $query = $conn->query("SELECT * FROM identification_questions");
+            while ($row = $query->fetch_assoc()) {
+                echo "<tr id='identification_row_{$row['id']}'>
+                    <td>{$row['identification_text']}</td>
+                    <td>{$row['answer']}</td>
+                    <td>
+                        <button class='btn edit-id-btn' data-id='{$row['id']}'>Edit</button>
+                        <button class='btn delete-id-btn' data-id='{$row['id']}'>Delete</button>
+                    </td>
+                </tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function () {
+    var table = $('#identificationTable').DataTable({
+        responsive: true,
+        autoWidth: false,
+        pageLength: 5,
+        lengthMenu: [[5, 10, 20, -1], [5, 10, 20, "All"]],
+        language: {
+            searchPlaceholder: "Search questions...",
+            lengthMenu: "Show _MENU_ entries",
+            zeroRecords: "No matching records found",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            infoEmpty: "No records available",
+            infoFiltered: "(filtered from _MAX_ total records)",
+            paginate: {
+                first: "First",
+                last: "Last",
+                next: "→",
+                previous: "←"
+            }
+        }
+    });
+
+    // Edit button functionality
+    $(document).on('click', '.edit-id-btn', function () {
+        var row = $(this).closest('tr');
+        var questionID = $(this).data('id');
+
+        if ($(this).text() === "Edit") {
+            row.find('td:not(:last-child)').each(function () {
+                var originalText = $(this).text().trim();
+                $(this).html(`<input type="text" class="edit-id-input" value="${originalText}">`);
+            });
+
+            $(this).text("Save").removeClass("edit-id-btn").addClass("save-id-btn");
+            row.find(".delete-id-btn").text("Cancel").removeClass("delete-id-btn").addClass("cancel-id-btn");
+        }
+    });
+
+    // Save button functionality
+    $(document).on('click', '.save-id-btn', function () {
+        var row = $(this).closest('tr');
+        var questionID = $(this).data('id');
+
+        var updatedData = {
+            id: questionID,
+            identification_text: row.find('.edit-id-input').eq(0).val(),
+            answer: row.find('.edit-id-input').eq(1).val()
+        };
+
+        $.ajax({
+            url: '../function/dynamic-iden-edit.php',
+            type: 'POST',
+            data: updatedData,
+            success: function (response) {
+                if (response === "success") {
+                    row.find('td:not(:last-child)').each(function (index) {
+                        $(this).text(Object.values(updatedData)[index + 1]);
+                    });
+
+                    row.find('.save-id-btn').text("Edit").removeClass("save-id-btn").addClass("edit-id-btn");
+                    row.find('.cancel-id-btn').text("Delete").removeClass("cancel-id-btn").addClass("delete-id-btn");
+                } else {
+                    alert("Error updating data!");
+                }
+            }
+        });
+    });
+
+    // Cancel button functionality
+    $(document).on('click', '.cancel-id-btn', function () {
+        var row = $(this).closest('tr');
+        row.find('input').each(function () {
+            $(this).parent().text($(this).val());
+        });
+        row.find('.save-id-btn').text("Edit").removeClass("save-id-btn").addClass("edit-id-btn");
+        row.find('.cancel-id-btn').text("Delete").removeClass("cancel-id-btn").addClass("delete-id-btn");
+    });
+});
+</script>
+
+
 <script src="../js/dynamic-add.js"></script>
 <script src="../js/dynamic-delete.js"></script>
+
+<script src="../js/dynamic-iden.js"></script>
