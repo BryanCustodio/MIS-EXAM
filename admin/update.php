@@ -69,6 +69,50 @@ include '../db/dbcon.php';
         background: #c82333;
     }
 
+/* Start Enumiration CSS */
+
+    .edit-id-btn {
+        background: #00929E;
+        color: white;
+    }
+    .edit-id-btn:hover {
+        background: #218838;
+
+    }
+    .delete-id-btn {
+        background: #034EA2;
+        color: white;
+    }
+    .delete-id-btn:hover{
+        background: #c82333;
+    }
+
+/* End Enumiration CSS */
+/* --------------------- */
+/* Start Identification CSS */
+
+    .enum-edit-btn {
+        background: #00929E;
+        color: white;
+    }
+
+    .enum-edit-btn:hover {
+        background: #218838;
+    }
+
+    .enum-delete-btn {
+        background: #034EA2;
+        color: white;
+    }
+
+    .enum-delete-btn:hover {
+        background: #c82333;
+    }
+
+/* End Identification CSS */
+
+
+
     @media (max-width: 768px) {
         .table-container {
             padding: 10px;
@@ -85,78 +129,10 @@ include '../db/dbcon.php';
     }
 </style>
 
-<!-- Edit Question Modal -->
-<div id="editModal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Edit Question</h2>
-        <form id="editQuestionForm">
-            <input type="hidden" id="edit_id">
-            <label>Question:</label>
-            <input type="text" id="edit_question" required>
-
-            <label>Option A:</label>
-            <input type="text" id="edit_option_a" required>
-
-            <label>Option B:</label>
-            <input type="text" id="edit_option_b" required>
-
-            <label>Option C:</label>
-            <input type="text" id="edit_option_c" required>
-
-            <label>Option D:</label>
-            <input type="text" id="edit_option_d" required>
-
-            <label>Correct Answer:</label>
-            <select id="edit_correct_option">
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-                <option value="D">D</option>
-            </select>
-
-            <button type="submit" class="save-btn">Save Changes</button>
-        </form>
-    </div>
-</div>
-
-<!-- CSS for Modal -->
-<style>
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.4);
-    justify-content: center;
-    align-items: center;
-}
-
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    width: 40%;
-    position: relative;
-}
-
-.close {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 25px;
-    cursor: pointer;
-}
-</style>
-
-
-<!-- Responsive Table Wrapper -->
+<!-- Start Multiple Choice Responsive Table Wrapper -->
 <div class="table-container">
     <h2 style="color: #333;">Multiple Choice</h2><br>
-    <form id="addQuestionForm" method="POST" action="../function/add-questions.php" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+    <form id="addQuestionForm" method="POST" action="../function/add-multiple.php" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
         <input type="text" name="question_text" placeholder="Enter question" required style="flex: 1; min-width: 200px;">
         <input type="text" name="option_a" placeholder="Option A" required style="flex: 1; min-width: 100px;">
         <input type="text" name="option_b" placeholder="Option B" required style="flex: 1; min-width: 100px;">
@@ -280,7 +256,7 @@ $(document).on('click', '.edit-btn', function () {
 
         // AJAX request to update the database
         $.ajax({
-            url: '../function/dynamic-edit.php',
+            url: '../function/dynamic-edit-multiple.php',
             type: 'POST',
             data: updatedData,
             success: function (response) {
@@ -322,9 +298,9 @@ $(document).on('click', '.edit-btn', function () {
     });
 });
 </script>
+<!-- End Multiple Choice Responsive Table Wrapper -->
 
-
-<!-- Responsive Table Wrapper -->
+<!-- Start Identification Responsive Table Wrapper -->
 <div class="table-container">
     <h2 style="color: #333;">Identification</h2><br>
     <form id="addIdentificationForm" method="POST" action="../function/add-identification.php" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
@@ -410,7 +386,7 @@ $(document).ready(function () {
         };
 
         $.ajax({
-            url: '../function/dynamic-iden-edit.php',
+            url: '../function/dynamic-edit-identification.php',
             type: 'POST',
             data: updatedData,
             success: function (response) {
@@ -439,9 +415,138 @@ $(document).ready(function () {
     });
 });
 </script>
+<!-- End Identification Responsive Table Wrapper -->
+
+<!-- Start Enumiration Responsive Table Wrapper -->
+<div class="table-container">
+    <h2 style="color: #333;">Enumeration</h2><br>
+    <form id="addEnumForm" method="POST" action="../function/add-enumiration.php" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+        <input type="text" name="enum_question" placeholder="Enter enumeration question" required style="flex: 1; min-width: 300px;">
+        <textarea name="enum_answers" placeholder="Enter correct answers (comma-separated)" required style="flex: 1; min-width: 300px;"></textarea>
+        <button type="submit" style="background: #00929E; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">Add Question</button>
+    </form>
+
+    <table id="enumTable" class="display responsive nowrap compact">
+        <thead>
+            <tr>
+                <th style="text-align: center;">Question</th>
+                <th style="text-align: center;">Answers</th>
+                <th style="text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            include '../db/dbcon.php';
+            $query = $conn->query("SELECT * FROM enumeration_questions");
+            while ($row = $query->fetch_assoc()) {
+                echo "<tr id='enumRow_{$row['id']}'>
+                    <td>{$row['enumeration_text']}</td>
+                    <td>{$row['answers']}</td>
+                    <td>
+                        <button class='btn enum-edit-btn' data-id='{$row['id']}'>Edit</button>
+                        <button class='btn enum-delete-btn' data-id='{$row['id']}'>Delete</button>
+                    </td>
+                </tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function () {
+    var table = $('#enumTable').DataTable({
+        responsive: true,
+        autoWidth: false,
+        pageLength: 5,
+        lengthMenu: [[5, 10, 20, -1], [5, 10, 20, "All"]],
+        language: {
+            searchPlaceholder: "Search questions...",
+            lengthMenu: "Show _MENU_ entries",
+            zeroRecords: "No matching records found",
+            info: "Showing _START_ to _END_ of _TOTAL_ entries",
+            infoEmpty: "No records available",
+            infoFiltered: "(filtered from _MAX_ total records)",
+            paginate: {
+                first: "First",
+                last: "Last",
+                next: "→",
+                previous: "←"
+            }
+        }
+    });
+
+    // Edit button functionality
+    $(document).on('click', '.enum-edit-btn', function () {
+        var row = $(this).closest('tr');
+        var questionID = $(this).data('id');
+
+        if ($(this).text() === "Edit") {
+            row.find('td:not(:last-child)').each(function () {
+                var originalText = $(this).text().trim();
+                $(this).html(`<input type="text" class="enum-edit-input" value="${originalText}">`);
+            });
+
+            $(this).text("Save").removeClass("enum-edit-btn").addClass("enum-save-btn");
+            row.find(".enum-delete-btn").text("Cancel").removeClass("enum-delete-btn").addClass("enum-cancel-btn");
+        }
+    });
+
+    // Save button functionality
+    $(document).on('click', '.enum-save-btn', function () {
+        var row = $(this).closest('tr');
+        var questionID = $(this).data('id');
+
+        var updatedData = {
+            id: questionID,
+            enum_question: row.find('.enum-edit-input').eq(0).val(),
+            enum_answers: row.find('.enum-edit-input').eq(1).val()
+        };
+
+        $.ajax({
+            url: '../function/update-enumaration.php',
+            type: 'POST',
+            data: updatedData,
+            success: function (response) {
+                if (response === "success") {
+                    row.find('td:not(:last-child)').each(function (index) {
+                        $(this).text(Object.values(updatedData)[index + 1]);
+                    });
+
+                    row.find('.enum-save-btn').text("Edit").removeClass("enum-save-btn").addClass("enum-edit-btn");
+                    row.find('.enum-cancel-btn').text("Delete").removeClass("enum-cancel-btn").addClass("enum-delete-btn");
+                } else {
+                    alert("Error updating data!");
+                }
+            }
+        });
+    });
+
+    // Cancel button functionality
+    $(document).on('click', '.enum-cancel-btn', function () {
+        var row = $(this).closest('tr');
+        row.find('input').each(function () {
+            $(this).parent().text($(this).val());
+        });
+        row.find('.enum-save-btn').text("Edit").removeClass("enum-save-btn").addClass("enum-edit-btn");
+        row.find('.enum-cancel-btn').text("Delete").removeClass("enum-cancel-btn").addClass("enum-delete-btn");
+    });
+});
+</script>
+<!-- End Enumiration Responsive Table Wrapper -->
 
 
-<script src="../js/dynamic-add.js"></script>
-<script src="../js/dynamic-delete.js"></script>
+<!-- Start Script Multiple Choice -->
+<script src="../js/dynamic-add-multiple.js"></script>
+<script src="../js/dynamic-delete-multiple.js"></script>
+<!-- End Script Multiple Choice -->
 
-<script src="../js/dynamic-iden.js"></script>
+<!-- Start Script Identification -->
+<script src="../js/dynamic-add-identification.js"></script>
+<script src="../js/dynamic-delete-identification.js"></script>
+<!-- End Script Identification -->
+
+<!-- Start Script Enumeration -->
+<script src="../js/dynamic-add-enumaration.js"></script>
+<script src="../js/dynamic-delete-enumaration.js"></script>
+<!-- End Script Enumeration -->
