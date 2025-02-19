@@ -1,20 +1,28 @@
 <?php
 include '../db/dbcon.php';
 
+header('Content-Type: application/json'); // Ensure JSON response
+
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id'])) {
-    $id = $_POST['id'];
+    $id = intval($_POST['id']);
 
-    $query = "DELETE FROM identification_questions WHERE id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $id);
+    if ($id > 0) {
+        $stmt = $conn->prepare("DELETE FROM identification_questions WHERE id = ?");
+        $stmt->bind_param("i", $id);
 
-    if ($stmt->execute()) {
-        echo "success";
+        if ($stmt->execute()) {
+            echo json_encode(["status" => "success"]);
+        } else {
+            echo json_encode(["status" => "error", "message" => $conn->error]);
+        }
+
+        $stmt->close();
     } else {
-        echo "error";
+        echo json_encode(["status" => "error", "message" => "Invalid ID"]);
     }
-
-    $stmt->close();
-    $conn->close();
+} else {
+    echo json_encode(["status" => "error", "message" => "Missing ID"]);
 }
+
+$conn->close();
 ?>

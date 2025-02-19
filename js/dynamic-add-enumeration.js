@@ -3,7 +3,7 @@
         event.preventDefault();
 
         $.ajax({
-            url: "../function/add-enumiration.php",
+            url: "../function/add-enumeration.php",
             type: "POST",
             data: $(this).serialize(),
             dataType: "json",

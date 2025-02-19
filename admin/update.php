@@ -337,34 +337,19 @@ $(document).on('click', '.edit-btn', function () {
 
 <script>
 $(document).ready(function () {
-    var table = $('#identificationTable').DataTable({
+    var table = $("#identificationTable").DataTable({
         responsive: true,
         autoWidth: false,
         pageLength: 5,
-        lengthMenu: [[5, 10, 20, -1], [5, 10, 20, "All"]],
-        language: {
-            searchPlaceholder: "Search questions...",
-            lengthMenu: "Show _MENU_ entries",
-            zeroRecords: "No matching records found",
-            info: "Showing _START_ to _END_ of _TOTAL_ entries",
-            infoEmpty: "No records available",
-            infoFiltered: "(filtered from _MAX_ total records)",
-            paginate: {
-                first: "First",
-                last: "Last",
-                next: "→",
-                previous: "←"
-            }
-        }
     });
 
     // Edit button functionality
-    $(document).on('click', '.edit-id-btn', function () {
-        var row = $(this).closest('tr');
-        var questionID = $(this).data('id');
+    $(document).on("click", ".edit-id-btn", function () {
+        var row = $(this).closest("tr");
+        var questionID = $(this).data("id");
 
         if ($(this).text() === "Edit") {
-            row.find('td:not(:last-child)').each(function () {
+            row.find("td:not(:last-child)").each(function () {
                 var originalText = $(this).text().trim();
                 $(this).html(`<input type="text" class="edit-id-input" value="${originalText}">`);
             });
@@ -375,52 +360,57 @@ $(document).ready(function () {
     });
 
     // Save button functionality
-    $(document).on('click', '.save-id-btn', function () {
-        var row = $(this).closest('tr');
-        var questionID = $(this).data('id');
+    $(document).on("click", ".save-id-btn", function () {
+        var row = $(this).closest("tr");
+        var questionID = $(this).data("id");
 
         var updatedData = {
             id: questionID,
-            identification_text: row.find('.edit-id-input').eq(0).val(),
-            answer: row.find('.edit-id-input').eq(1).val()
+            identification_text: row.find(".edit-id-input").eq(0).val(),
+            answer: row.find(".edit-id-input").eq(1).val()
         };
 
         $.ajax({
-            url: '../function/dynamic-edit-identification.php',
-            type: 'POST',
+            url: "../function/dynamic-edit-identification.php",
+            type: "POST",
             data: updatedData,
+            dataType: "json",
             success: function (response) {
-                if (response === "success") {
-                    row.find('td:not(:last-child)').each(function (index) {
+                if (response.status === "success") {
+                    row.find("td:not(:last-child)").each(function (index) {
                         $(this).text(Object.values(updatedData)[index + 1]);
                     });
 
-                    row.find('.save-id-btn').text("Edit").removeClass("save-id-btn").addClass("edit-id-btn");
-                    row.find('.cancel-id-btn').text("Delete").removeClass("cancel-id-btn").addClass("delete-id-btn");
+                    row.find(".save-id-btn").text("Edit").removeClass("save-id-btn").addClass("edit-id-btn");
+                    row.find(".cancel-id-btn").text("Delete").removeClass("cancel-id-btn").addClass("delete-id-btn");
                 } else {
-                    alert("Error updating data!");
+                    alert("Error updating data: " + response.message);
                 }
+            },
+            error: function () {
+                alert("Something went wrong with the update request.");
             }
         });
     });
 
     // Cancel button functionality
-    $(document).on('click', '.cancel-id-btn', function () {
-        var row = $(this).closest('tr');
-        row.find('input').each(function () {
+    $(document).on("click", ".cancel-id-btn", function () {
+        var row = $(this).closest("tr");
+        row.find("input").each(function () {
             $(this).parent().text($(this).val());
         });
-        row.find('.save-id-btn').text("Edit").removeClass("save-id-btn").addClass("edit-id-btn");
-        row.find('.cancel-id-btn').text("Delete").removeClass("cancel-id-btn").addClass("delete-id-btn");
+        row.find(".save-id-btn").text("Edit").removeClass("save-id-btn").addClass("edit-id-btn");
+        row.find(".cancel-id-btn").text("Delete").removeClass("cancel-id-btn").addClass("delete-id-btn");
     });
 });
+
 </script>
 <!-- End Identification Responsive Table Wrapper -->
 
 <!-- Start Enumiration Responsive Table Wrapper -->
 <div class="table-container">
     <h2 style="color: #333;">Enumeration</h2><br>
-    <form id="addEnumForm" method="POST" action="../function/add-enumiration.php" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+    <form id="addEnumForm" method="POST" action="../function/add-enumeration.php" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
         <input type="text" name="enum_question" placeholder="Enter enumeration question" required style="flex: 1; min-width: 300px;">
         <textarea name="enum_answers" placeholder="Enter correct answers (comma-separated)" required style="flex: 1; min-width: 300px;"></textarea>
         <button type="submit" style="background: #00929E; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">Add Question</button>
@@ -504,7 +494,7 @@ $(document).ready(function () {
         };
 
         $.ajax({
-            url: '../function/update-enumaration.php',
+            url: '../function/update-enumeration.php',
             type: 'POST',
             data: updatedData,
             success: function (response) {
@@ -547,6 +537,6 @@ $(document).ready(function () {
 <!-- End Script Identification -->
 
 <!-- Start Script Enumeration -->
-<script src="../js/dynamic-add-enumaration.js"></script>
-<script src="../js/dynamic-delete-enumaration.js"></script>
+<script src="../js/dynamic-add-enumeration.js"></script>
+<script src="../js/dynamic-delete-enumeration.js"></script>
 <!-- End Script Enumeration -->
