@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 17, 2025 at 03:45 AM
+-- Generation Time: Feb 20, 2025 at 10:52 AM
 -- Server version: 10.4.27-MariaDB
 -- PHP Version: 7.4.33
 
@@ -43,6 +43,28 @@ INSERT INTO `admin` (`id`, `username`, `password`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `enumeration_questions`
+--
+
+CREATE TABLE `enumeration_questions` (
+  `id` int(11) NOT NULL,
+  `enumeration_text` text NOT NULL,
+  `answers` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `enumeration_questions`
+--
+
+INSERT INTO `enumeration_questions` (`id`, `enumeration_text`, `answers`, `created_at`) VALUES
+(4, 'repairs', '172.17.9.254', '2025-02-19 00:09:42'),
+(5, 'mis-event', '172.17.9.152', '2025-02-19 00:21:43'),
+(24, 'All', 'Goods', '2025-02-20 08:00:09');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `exams`
 --
 
@@ -51,6 +73,27 @@ CREATE TABLE `exams` (
   `subject_id` int(11) DEFAULT NULL,
   `exam_name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `identification_questions`
+--
+
+CREATE TABLE `identification_questions` (
+  `id` int(11) NOT NULL,
+  `identification_text` text NOT NULL,
+  `answer` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `identification_questions`
+--
+
+INSERT INTO `identification_questions` (`id`, `identification_text`, `answer`, `created_at`) VALUES
+(32, 'All', 'Goods', '2025-02-20 07:59:57'),
+(33, 'qwewq', 'qwe', '2025-02-20 09:16:04');
 
 -- --------------------------------------------------------
 
@@ -73,9 +116,7 @@ CREATE TABLE `questions` (
 --
 
 INSERT INTO `questions` (`id`, `question_text`, `option_a`, `option_b`, `option_c`, `option_d`, `correct_option`) VALUES
-(124, 'custodio', 'custodio', 'custodio', 'custodio', 'custodio', 'A'),
-(125, 'bryanpogi', 'pogi', 'pigo', 'pogi', 'pogi', 'A'),
-(126, 'custodiopog', 'pogi', 'pogi', 'pogi', 'pogi', 'A');
+(178, 'All', 'goods', 'goods', 'goods', 'goods', 'D');
 
 -- --------------------------------------------------------
 
@@ -130,11 +171,23 @@ ALTER TABLE `admin`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `enumeration_questions`
+--
+ALTER TABLE `enumeration_questions`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `exams`
 --
 ALTER TABLE `exams`
   ADD PRIMARY KEY (`id`),
   ADD KEY `subject_id` (`subject_id`);
+
+--
+-- Indexes for table `identification_questions`
+--
+ALTER TABLE `identification_questions`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `questions`
@@ -172,16 +225,28 @@ ALTER TABLE `admin`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `enumeration_questions`
+--
+ALTER TABLE `enumeration_questions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+
+--
 -- AUTO_INCREMENT for table `exams`
 --
 ALTER TABLE `exams`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `identification_questions`
+--
+ALTER TABLE `identification_questions`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+
+--
 -- AUTO_INCREMENT for table `questions`
 --
 ALTER TABLE `questions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=130;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=207;
 
 --
 -- AUTO_INCREMENT for table `results`
