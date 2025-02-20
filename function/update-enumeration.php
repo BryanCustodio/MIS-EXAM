@@ -1,22 +1,22 @@
 <?php
 include '../db/dbcon.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = $_POST['id'];
-    $identification_text = $_POST['identification_text'];
-    $answer = $_POST['answer'];
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['id'])) {
+    $id = intval($_POST['id']);
+    $enum_question = $conn->real_escape_string($_POST['enum_question']);
+    $enum_answers = $conn->real_escape_string($_POST['enum_answers']);
 
-    // Gamitin ang prepared statements para sa mas ligtas na query
-    $stmt = $conn->prepare("UPDATE identification_questions SET identification_text = ?, answer = ? WHERE id = ?");
-    $stmt->bind_param("ssi", $identification_text, $answer, $id);
+    $stmt = $conn->prepare("UPDATE enumeration_questions SET enumeration_text = ?, answers = ? WHERE id = ?");
+    $stmt->bind_param("ssi", $enum_question, $enum_answers, $id);
 
     if ($stmt->execute()) {
         echo "success";
     } else {
-        echo "error: " . $stmt->error;
+        echo "error";
     }
 
     $stmt->close();
-    $conn->close();
 }
+
+$conn->close();
 ?>
