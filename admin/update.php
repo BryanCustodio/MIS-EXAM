@@ -183,32 +183,6 @@ include '../db/dbcon.php';
 </div>
 
 <script>
-    // $(document).ready(function () {
-    // var table = $('#questionsTable').DataTable({
-    //     responsive: true,
-    //     autoWidth: false,
-    //     pageLength: 5,
-    //     lengthMenu: [[5, 10, 20, -1], [5, 10, 20, "All"]],
-    //     columnDefs: [
-    //         { targets: [0], className: "text-wrap", width: "30%" },
-    //         { targets: [1, 2, 3, 4, 5], className: "text-center", width: "10%" },
-    //         { targets: [6], className: "text-center", width: "20%" }
-    //     ],
-    //     language: {
-    //         searchPlaceholder: "Search questions...",
-    //         lengthMenu: "Show _MENU_ entries",
-    //         zeroRecords: "No matching records found",
-    //         info: "Showing _START_ to _END_ of _TOTAL_ entries",
-    //         infoEmpty: "No records available",
-    //         infoFiltered: "(filtered from _MAX_ total records)",
-    //         paginate: {
-    //             first: "First",
-    //             last: "Last",
-    //             next: "→",
-    //             previous: "←"
-    //         }
-    //     }
-    // });
 // Edit button functionality
 $(document).on('click', '.edit-btn', function () {
         var row = $(this).closest('tr');
@@ -296,7 +270,6 @@ $(document).on('click', '.edit-btn', function () {
         row.find('.save-btn').text("Edit").removeClass("save-btn").addClass("edit-btn");
         row.find('.cancel-btn').text("Delete").removeClass("cancel-btn").addClass("delete-btn");
     });
-// });
 </script>
 <!-- End Multiple Choice Responsive Table Wrapper -->
 
