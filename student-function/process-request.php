@@ -6,28 +6,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $student_id = $_POST['student_id'];
     $exam_name = $_POST['exam_name'];
 
-    // Check kung may existing request na
-    $check_stmt = $conn->prepare("SELECT * FROM exam_requests WHERE student_id = ? AND exam_name = ?");
-    $check_stmt->bind_param("is", $student_id, $exam_name);
-    $check_stmt->execute();
-    $result = $check_stmt->get_result();
+    // Check if the request already exists
+    $checkQuery = "SELECT * FROM exam_requests WHERE student_id = ? AND exam_name = ?";
+    $stmt = $conn->prepare($checkQuery);
+    $stmt->bind_param("is", $student_id, $exam_name);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if ($result->num_rows > 0) {
-        echo "You have already requested for this exam.";
-    } else {
-        $stmt = $conn->prepare("INSERT INTO exam_requests (student_id, exam_name, status) VALUES (?, ?, 'Pending')");
+    if ($result->num_rows == 0) {
+        // Insert request for approval
+        $insertQuery = "INSERT INTO exam_requests (student_id, exam_name, status) VALUES (?, ?, 'pending')";
+        $stmt = $conn->prepare($insertQuery);
         $stmt->bind_param("is", $student_id, $exam_name);
-
+        
         if ($stmt->execute()) {
-            echo "Request submitted successfully.";
+            echo "For Approval. Please wait for admin approval.";
         } else {
             echo "Error submitting request.";
         }
-
-        $stmt->close();
+    } else {
+        echo "You have already requested approval for this exam.";
     }
-
-    $check_stmt->close();
+    
+    $stmt->close();
     $conn->close();
 }
 ?>

@@ -27,7 +27,7 @@ $student_id = $_SESSION['student_id'];
                 var studentId = <?php echo $student_id; ?>;
                 
                 $.ajax({
-                    url: "./process-request.php",
+                    url: "../student-function/process-request.php",
                     type: "POST",
                     data: { student_id: studentId, exam_name: examName },
                     success: function(response) {
@@ -41,17 +41,13 @@ $student_id = $_SESSION['student_id'];
 <body>
     <div class="exam-container">
         <h2>Welcome to the Exam</h2>
-        <div class="row">
+        <div class="exam-grid">
             <div class="box" data-exam="Examination 1">Examination 1<br><span class="join-text">Join the Examination</span></div>
             <div class="box" data-exam="Examination 2">Examination 2<br><span class="join-text">Join the Examination</span></div>
             <div class="box" data-exam="Examination 3">Examination 3<br><span class="join-text">Join the Examination</span></div>
-        </div>
-        <div class="row">
             <div class="box" data-exam="Examination 4">Examination 4<br><span class="join-text">Join the Examination</span></div>
             <div class="box" data-exam="Examination 5">Examination 5<br><span class="join-text">Join the Examination</span></div>
             <div class="box" data-exam="Examination 6">Examination 6<br><span class="join-text">Join the Examination</span></div>
-        </div>
-        <div class="row">
             <div class="box" data-exam="Examination 7">Examination 7<br><span class="join-text">Join the Examination</span></div>
             <div class="box" data-exam="Examination 8">Examination 8<br><span class="join-text">Join the Examination</span></div>
             <div class="box" data-exam="Examination 9">Examination 9<br><span class="join-text">Join the Examination</span></div>
@@ -65,15 +61,17 @@ $student_id = $_SESSION['student_id'];
         text-align: center;
         padding: 20px;
     }
-    .row {
-        display: flex;
+    .exam-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
         justify-content: center;
-        margin: 10px 0;
+        margin: 20px auto;
+        max-width: 800px;
     }
     .box {
-        width: 200px;
+        width: 100%;
         height: 120px;
-        margin: 10px;
         background-color: #f0f0f0;
         display: flex;
         flex-direction: column;
@@ -93,5 +91,3 @@ $student_id = $_SESSION['student_id'];
         margin-top: 5px;
     }
 </style>
-
-<script src="../student-js/process-request.js"></script>
