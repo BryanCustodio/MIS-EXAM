@@ -91,7 +91,7 @@ if (!$result) {
             <tr>
                 <th>Student Name</th>
                 <th>Exam Name</th>
-                <th>Status</th>
+                <!-- <th>Status</th> -->
                 <th>Action</th>
             </tr>
         </thead>
@@ -100,7 +100,6 @@ if (!$result) {
                 <tr id="row_<?php echo htmlspecialchars($row['id']); ?>">
                     <td><?php echo htmlspecialchars($row['first_name'] . " " . $row['last_name']); ?></td>
                     <td><?php echo htmlspecialchars($row['exam_name']); ?></td>
-                    <td class="status"><?php echo htmlspecialchars($row['status']); ?></td>
                     <td>
                         <?php if ($row['status'] === 'Pending') : ?>
                             <button class="btn approve-btn" data-id="<?php echo htmlspecialchars($row['id']); ?>">Approve</button>
