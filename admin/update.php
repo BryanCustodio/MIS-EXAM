@@ -162,7 +162,7 @@ include '../db/dbcon.php';
         </thead>
         <tbody>
             <?php
-            $query = $conn->query("SELECT * FROM questions");
+            $query = $conn->query("SELECT * FROM questions WHERE question_type = 'multiple_choice'");
             while ($row = $query->fetch_assoc()) {
                 echo "<tr id='row_{$row['id']}'>
                     <td>{$row['question_text']}</td>
@@ -399,12 +399,11 @@ $(document).ready(function () {
         </thead>
         <tbody>
             <?php
-            include '../db/dbcon.php';
-            $query = $conn->query("SELECT * FROM enumeration_questions");
+            $query = $conn->query("SELECT * FROM questions WHERE question_type = 'enumeration'");
             while ($row = $query->fetch_assoc()) {
                 echo "<tr id='enumRow_{$row['id']}'>
-                    <td>{$row['enumeration_text']}</td>
-                    <td>{$row['answers']}</td>
+                    <td>{$row['question_text']}</td>
+                    <td>{$row['answer']}</td>
                     <td>
                         <button class='btn enum-edit-btn' data-id='{$row['id']}'>Edit</button>
                         <button class='btn enum-delete-btn' data-id='{$row['id']}'>Delete</button>
