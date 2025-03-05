@@ -1,4 +1,3 @@
-$(document).ready(function () {
     $("#addIdentificationForm").submit(function (event) {
         event.preventDefault();
 
@@ -9,7 +8,6 @@ $(document).ready(function () {
             dataType: "json",
             success: function (response) {
                 if (response.id) {
-                    // Add the new row dynamically
                     var newRow = `
                         <tr id="identification_row_${response.id}">
                             <td>${response.identification_text}</td>
@@ -21,8 +19,6 @@ $(document).ready(function () {
                         </tr>`;
                     
                     $("#identificationTable tbody").append(newRow);
-                    
-                    // Clear input fields
                     $("#addIdentificationForm")[0].reset();
                 } else {
                     alert("Error: " + response.error);
@@ -33,4 +29,3 @@ $(document).ready(function () {
             }
         });
     });
-});

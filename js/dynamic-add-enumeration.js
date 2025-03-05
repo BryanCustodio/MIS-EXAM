@@ -1,4 +1,3 @@
-    // AJAX submission for adding a new enumeration question
     $("#addEnumForm").submit(function (event) {
         event.preventDefault();
 
