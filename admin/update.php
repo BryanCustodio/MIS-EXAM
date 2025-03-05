@@ -292,10 +292,10 @@ $(document).on('click', '.edit-btn', function () {
         </thead>
         <tbody>
             <?php
-            $query = $conn->query("SELECT * FROM identification_questions");
+            $query = $conn->query("SELECT * FROM questions WHERE question_type = 'identification'");
             while ($row = $query->fetch_assoc()) {
                 echo "<tr id='identification_row_{$row['id']}'>
-                    <td>{$row['identification_text']}</td>
+                    <td>{$row['question_text']}</td>
                     <td>{$row['answer']}</td>
                     <td>
                         <button class='btn edit-id-btn' data-id='{$row['id']}'>Edit</button>
@@ -339,9 +339,10 @@ $(document).ready(function () {
 
         var updatedData = {
             id: questionID,
-            identification_text: row.find(".edit-id-input").eq(0).val(),
+            question_text: row.find(".edit-id-input").eq(0).val(),
             answer: row.find(".edit-id-input").eq(1).val()
         };
+
 
         $.ajax({
             url: "../function/dynamic-edit-identification.php",

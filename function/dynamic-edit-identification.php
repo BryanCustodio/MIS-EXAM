@@ -36,20 +36,21 @@
 include '../db/dbcon.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['id'], $_POST['identification_text'], $_POST['answer'])) {
+    if (isset($_POST['id'], $_POST['question_text'], $_POST['answer'])) {
         $id = intval($_POST['id']); // Security: Convert to integer
-        $identification_text = trim($_POST['identification_text']);
+        $question_text = trim($_POST['question_text']);
         $answer = trim($_POST['answer']);
 
         // Use prepared statements to prevent SQL injection
-        $stmt = $conn->prepare("UPDATE identification_questions SET identification_text = ?, answer = ? WHERE id = ?");
-        $stmt->bind_param("ssi", $identification_text, $answer, $id);
+        $stmt = $conn->prepare("UPDATE questions SET question_text = ?, answer = ? WHERE id = ?");
+
+        $stmt->bind_param("ssi", $question_text, $answer, $id);
 
         if ($stmt->execute()) {
             echo json_encode([
                 "status" => "success",
                 "id" => $id,
-                "identification_text" => $identification_text,
+                "question_text" => $question_text,
                 "answer" => $answer
             ]);
         } else {
