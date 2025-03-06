@@ -3,216 +3,159 @@ session_start();
 include '../db/dbcon.php';
 
 // Fetch students
-$query = "SELECT id, first_name, middle_name, last_name, gender, username, created_at FROM student ORDER BY created_at DESC";
-$result = $conn->query($query);
+$studentQuery = "SELECT id, first_name, middle_name, last_name, gender, username, created_at FROM student ORDER BY created_at DESC";
+$studentResult = $conn->query($studentQuery);
+
+// Fetch exams
+$examQuery = "SELECT id, exam_name FROM exams ORDER BY created_at DESC";
+$examResult = $conn->query($examQuery);
+$exams = [];
+while ($examRow = $examResult->fetch_assoc()) {
+    $exams[] = $examRow;
+}
 ?>
 
-<!-- Add DataTables CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Examination</title>
 
-<style>
-    /* General container styling */
-    .table-container {
-        width: 95%;
-        max-width: 1200px;
-        margin: 20px auto;
-        background: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-        overflow-x: auto;
-    }
+    <!-- DataTables CSS & jQuery -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
-    /* Table styling */
-    table {
-        width: 100%;
-        font-size: 14px;
-        border-collapse: collapse;
-    }
-
-    th {
-        background: #00929E;
-        color: white;
-        text-align: center;
-        padding: 10px;
-    }
-
-    td {
-        padding: 8px;
-        text-align: center;
-    }
-
-    /* Responsive Table */
-    @media (max-width: 768px) {
-        th, td {
-            font-size: 12px;
-            padding: 6px;
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
         }
-    }
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .exam-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .exam-form input {
+            flex: 1;
+            min-width: 150px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .add-btn {
+            background: #28a745;
+            color: white;
+        }
+        th {
+            background: #00929E;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+        td {
+            padding: 8px;
+            text-align: center;
+        }
+        input[type="checkbox"] {
+            transform: scale(1.3);
+        }
+    </style>
+</head>
+<body>
 
-    /* Buttons */
-    .btn {
-        padding: 8px 15px;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
-    }
+<div class="container">
+    <h2>Create New Exam</h2>
+    
+    <!-- Exam Creation Form -->
+    <form id="createExamForm" class="exam-form">
+        <input type="text" id="exam_name" name="exam_name" placeholder="Exam Name" required>
+        <input type="number" id="mcq_count" name="mcq_count" placeholder="Multiple-Choice Questions" required>
+        <input type="number" id="identification_count" name="identification_count" placeholder="Identification Questions" required>
+        <input type="number" id="enumeration_count" name="enumeration_count" placeholder="Enumeration Questions" required>
+        <button type="submit" class="btn add-btn">Create Exam</button>
+    </form>
 
-    .add-btn {
-        background: #28a745;
-        color: white;
-        margin-bottom: 15px;
-        display: block;
-        width: 100%;
-        text-align: center;
-    }
-
-    /* Modal Styling */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-content {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        width: 90%;
-        max-width: 500px;
-        text-align: center;
-        margin: auto;
-    }
-
-    .close {
-        float: right;
-        font-size: 22px;
-        cursor: pointer;
-    }
-
-    /* Form Input */
-    input {
-        width: 100%;
-        padding: 8px;
-        margin: 5px 0;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-    }
-</style>
-
-<!-- Add Exam Button -->
-<div class="table-container">
-    <h2>Registered Students</h2>
-    <button class="btn add-btn" id="createExamBtn">Create Exam</button>
-
+    <h2>Student Exam Access</h2>
     <table id="studentTable" class="table table-striped table-bordered nowrap">
         <thead>
             <tr>
                 <th>First Name</th>
-                <th>Middle Name</th>
                 <th>Last Name</th>
-                <th>Gender</th>
-                <th>Username</th>
-                <th>Registered At</th>
+                <?php foreach ($exams as $exam) : ?>
+                    <th><?php echo htmlspecialchars($exam['exam_name']); ?></th>
+                <?php endforeach; ?>
             </tr>
         </thead>
         <tbody>
-            <?php while ($row = $result->fetch_assoc()) : ?>
+            <?php while ($student = $studentResult->fetch_assoc()) : ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($row['first_name']); ?></td>
-                    <td><?php echo isset($row['middle_name']) ? htmlspecialchars($row['middle_name']) : 'N/A'; ?></td>
-                    <td><?php echo htmlspecialchars($row['last_name']); ?></td>
-                    <td><?php echo isset($row['gender']) ? htmlspecialchars($row['gender']) : 'N/A'; ?></td>
-                    <td><?php echo htmlspecialchars($row['username']); ?></td>
-                    <td><?php echo isset($row['created_at']) ? htmlspecialchars($row['created_at']) : 'N/A'; ?></td>
+                    <td><?php echo htmlspecialchars($student['first_name']); ?></td>
+                    <td><?php echo htmlspecialchars($student['last_name']); ?></td>
+
+                    <?php foreach ($exams as $exam) : ?>
+                        <td>
+                            <input type="checkbox" class="exam-checkbox" 
+                                   data-student-id="<?php echo $student['id']; ?>" 
+                                   data-exam-id="<?php echo $exam['id']; ?>">
+                        </td>
+                    <?php endforeach; ?>
                 </tr>
             <?php endwhile; ?>
         </tbody>
     </table>
 </div>
 
-<!-- Create Exam Modal -->
-<div id="createExamModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Create New Exam</h2>
-        <form id="createExamForm">
-            <label for="exam_name">Exam Name:</label>
-            <input type="text" id="exam_name" name="exam_name" required>
-
-            <label for="mcq_count">Multiple-Choice Questions:</label>
-            <input type="number" id="mcq_count" name="mcq_count" required>
-
-            <label for="identification_count">Identification Questions:</label>
-            <input type="number" id="identification_count" name="identification_count" required>
-
-            <label for="enumeration_count">Enumeration Questions:</label>
-            <input type="number" id="enumeration_count" name="enumeration_count" required>
-
-            <button type="submit" class="btn add-btn">Create Exam</button>
-        </form>
-    </div>
-</div>
-
 <script>
     $(document).ready(function () {
-        $('#studentTable').DataTable({
-            responsive: true,
-            autoWidth: false,
-            paging: true,           
-            searching: true,        
-            ordering: true,         
-            lengthMenu: [10, 25, 50, 100], 
-            language: {
-                search: " Search: ",
-                lengthMenu: "Show _MENU_ entries per page",
-                info: "Showing _START_ to _END_ of _TOTAL_ students",
-                paginate: {
-                    first: "First",
-                    last: "Last",
-                    next: "→",
-                    previous: "←"
-                }
-            }
-        });
-    });
+        $('#studentTable').DataTable();
 
-    // Show modal
-    $("#createExamBtn").click(function () {
-        $("#createExamModal").fadeIn();
-    });
-
-    // Close modal
-    $(".close").click(function () {
-        $("#createExamModal").fadeOut();
-    });
-
-    // Submit form
-    $("#createExamForm").submit(function (event) {
-        event.preventDefault();
-        var formData = $(this).serialize();
-
-        $.ajax({
-            url: "../function/add-exam.php",
-            type: "POST",
-            data: formData,
-            success: function (response) {
-                if (response === "success") {
-                    alert("Exam successfully created!");
-                    $("#createExamModal").fadeOut();
+        $("#createExamForm").submit(function (event) {
+            event.preventDefault();
+            $.ajax({
+                url: "../function/add-exam.php",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function (response) {
+                    alert(response.trim() === "success" ? "Exam successfully created!" : "Failed to create exam.");
                     location.reload();
-                } else {
-                    alert("Failed to create exam.");
                 }
-            }
+            });
+        });
+
+        $(".exam-checkbox").change(function () {
+            let studentId = $(this).data("student-id");
+            let examId = $(this).data("exam-id");
+            let isChecked = $(this).prop("checked") ? 1 : 0;
+
+            $.ajax({
+                url: "../function/update_exam_status.php",
+                type: "POST",
+                data: { student_id: studentId, exam_id: examId, status: isChecked },
+                success: function (response) {
+                    console.log(response);
+                }
+            });
         });
     });
 </script>
+
+</body>
+</html>

@@ -10,3 +10,12 @@ $students = $conn->query("SELECT id, first_name FROM student");
         <tr><td><?php echo $row['id']; ?></td><td><?php echo $row['first_name']; ?></td></tr>
     <?php } ?>
 </table>
+
+
+archive
+archive
+archive
+archive
+archive
+archive
+archive

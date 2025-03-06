@@ -12,7 +12,7 @@
                 <!-- Admin Links -->
                 <li><a href="#" class="menu-link" onclick="location.reload();">Dashboard</a></li>
                 <li><a href="#" class="menu-link" data-page="../admin/update.php">Questions</a></li>
-                <li><a href="#" class="menu-link" data-page="../admin/registered-stud.php">Student Lists</a></li>
+                <!-- <li><a href="#" class="menu-link" data-page="../admin/registered-stud.php">Student Lists</a></li> -->
                 <li><a href="#" class="menu-link" data-page="../admin/exam-results.php">Exam Results</a></li>
                 <li><a href="#" class="menu-link" data-page="../admin/approved-disapproved.php">Student Requests</a></li>
             <?php endif; ?>
