@@ -26,6 +26,7 @@ while ($examRow = $examResult->fetch_assoc()) {
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         body {
@@ -69,10 +70,23 @@ while ($examRow = $examResult->fetch_assoc()) {
             color: white;
             text-align: center;
             padding: 10px;
+            position: relative;
         }
         td {
             padding: 8px;
             text-align: center;
+        }
+        .delete-exam {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            position: absolute;
+            top: 5px;
+            right: 5px;
         }
         input[type="checkbox"] {
             transform: scale(1.3);
@@ -100,7 +114,10 @@ while ($examRow = $examResult->fetch_assoc()) {
                 <th>First Name</th>
                 <th>Last Name</th>
                 <?php foreach ($exams as $exam) : ?>
-                    <th><?php echo htmlspecialchars($exam['exam_name']); ?></th>
+                    <th>
+                        <?php echo htmlspecialchars($exam['exam_name']); ?>
+                        <button class="delete-exam" data-exam-id="<?php echo $exam['id']; ?>">×</button>
+                    </th>
                 <?php endforeach; ?>
             </tr>
         </thead>
@@ -111,10 +128,20 @@ while ($examRow = $examResult->fetch_assoc()) {
                     <td><?php echo htmlspecialchars($student['last_name']); ?></td>
 
                     <?php foreach ($exams as $exam) : ?>
+                        <?php
+                        // Check if the student has access to the exam
+                        $checkQuery = "SELECT status FROM student_exams WHERE student_id = ? AND exam_id = ?";
+                        $checkStmt = $conn->prepare($checkQuery);
+                        $checkStmt->bind_param("ii", $student['id'], $exam['id']);
+                        $checkStmt->execute();
+                        $checkResult = $checkStmt->get_result();
+                        $checked = $checkResult->fetch_assoc()['status'] ?? 0;
+                        ?>
                         <td>
                             <input type="checkbox" class="exam-checkbox" 
                                    data-student-id="<?php echo $student['id']; ?>" 
-                                   data-exam-id="<?php echo $exam['id']; ?>">
+                                   data-exam-id="<?php echo $exam['id']; ?>" 
+                                   <?php echo $checked ? 'checked' : ''; ?>>
                         </td>
                     <?php endforeach; ?>
                 </tr>
@@ -134,8 +161,7 @@ while ($examRow = $examResult->fetch_assoc()) {
                 type: "POST",
                 data: $(this).serialize(),
                 success: function (response) {
-                    alert(response.trim() === "success" ? "Exam successfully created!" : "Failed to create exam.");
-                    location.reload();
+                    Swal.fire("Success", "Exam successfully created!", "success").then(() => location.reload());
                 }
             });
         });
@@ -151,6 +177,31 @@ while ($examRow = $examResult->fetch_assoc()) {
                 data: { student_id: studentId, exam_id: examId, status: isChecked },
                 success: function (response) {
                     console.log(response);
+                }
+            });
+        });
+
+        $(".delete-exam").click(function () {
+            let examId = $(this).data("exam-id");
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This will permanently delete the exam.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "../function/delete_exam.php",
+                        type: "POST",
+                        data: { exam_id: examId },
+                        success: function (response) {
+                            Swal.fire("Deleted!", "The exam has been deleted.", "success").then(() => location.reload());
+                        }
+                    });
                 }
             });
         });
