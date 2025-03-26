@@ -11,7 +11,7 @@ if (!isset($_SESSION['student_logged_in'])) {
 // Get student ID from session
 $student_id = $_SESSION['student_id'];
 
-// Fetch exams that the student is allowed to take
+// Fetch available exams
 $examQuery = "SELECT e.id, e.exam_name 
               FROM exams e
               INNER JOIN student_exams se ON e.id = se.exam_id
@@ -37,25 +37,21 @@ $exams = $examResult->fetch_all(MYSQLI_ASSOC);
     <div class="exam-container">
         <h2>Available Exams</h2>
         <div class="exam-grid">
-            <?php if (!empty($exams)) : ?>
-                <?php foreach ($exams as $exam) : ?>
-                    <div class="box" data-exam-id="<?php echo $exam['id']; ?>">
-                        <?php echo htmlspecialchars($exam['exam_name']); ?>
-                        <br><span class="join-text">Join the Examination</span>
-                    </div>
-                <?php endforeach; ?>
-            <?php else : ?>
-                <p>No available exams at the moment.</p>
-            <?php endif; ?>
+            <?php foreach ($exams as $exam) : ?>
+                <div class="box" data-exam-id="<?php echo $exam['id']; ?>">
+                    <?php echo htmlspecialchars($exam['exam_name']); ?>
+                    <br><span class="join-text">Join the Examination</span>
+                </div>
+            <?php endforeach; ?>
         </div>
     </div>
 
-    <!-- Exam Modal -->
     <div id="examModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2 id="examTitle"></h2>
             <form id="examForm">
+                <input type="hidden" name="exam_id" id="exam_id">
                 <div id="examQuestions"></div>
                 <button type="submit">Submit Exam</button>
             </form>
@@ -67,20 +63,18 @@ $exams = $examResult->fetch_all(MYSQLI_ASSOC);
             $(".box").click(function () {
                 var examId = $(this).data("exam-id");
 
-                // Fetch exam questions via AJAX
                 $.ajax({
                     url: "../student-function/fetch_exam.php",
                     type: "POST",
                     data: { exam_id: examId },
                     success: function (response) {
                         var data = JSON.parse(response);
-
                         $("#examTitle").text(data.exam_name);
+                        $("#exam_id").val(examId);
 
                         var questionsHtml = "";
                         data.questions.forEach((q, index) => {
                             questionsHtml += `<p>${index + 1}. ${q.question_text}</p>`;
-
                             if (q.question_type === "multiple_choice") {
                                 questionsHtml += `
                                     <label><input type="radio" name="question_${q.id}" value="A"> ${q.option_a}</label><br>
@@ -88,35 +82,31 @@ $exams = $examResult->fetch_all(MYSQLI_ASSOC);
                                     <label><input type="radio" name="question_${q.id}" value="C"> ${q.option_c}</label><br>
                                     <label><input type="radio" name="question_${q.id}" value="D"> ${q.option_d}</label><br>
                                 `;
-                            } else if (q.question_type === "identification") {
+                            } else {
                                 questionsHtml += `<input type="text" name="question_${q.id}" placeholder="Your answer"><br>`;
-                            } else if (q.question_type === "enumeration") {
-                                questionsHtml += `<textarea name="question_${q.id}" placeholder="List your answers"></textarea><br>`;
                             }
                         });
 
                         $("#examQuestions").html(questionsHtml);
                         $("#examModal").show();
-                    },
+                    }
                 });
             });
 
-            // Close modal
             $(".close").click(function () {
                 $("#examModal").hide();
             });
 
-            // Submit Exam
             $("#examForm").submit(function (e) {
                 e.preventDefault();
                 $.ajax({
-                    url: "submit_exam.php",
+                    url: "../student-function/submit_exam.php",
                     type: "POST",
                     data: $(this).serialize(),
                     success: function (response) {
                         alert(response);
                         $("#examModal").hide();
-                    },
+                    }
                 });
             });
         });
@@ -124,6 +114,7 @@ $exams = $examResult->fetch_all(MYSQLI_ASSOC);
 
 </body>
 </html>
+
 
 <style>
     .exam-container { text-align: center; padding: 20px; }
@@ -136,4 +127,4 @@ $exams = $examResult->fetch_all(MYSQLI_ASSOC);
     .close { float: right; font-size: 24px; cursor: pointer; }
 </style>
 
-<script src="../student-js/submit_exam.js"></script>
+<!-- <script src="../student-js/submit_exam.js"></script> -->
