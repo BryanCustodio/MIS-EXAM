@@ -126,3 +126,5 @@ $exams = $examResult->fetch_all(MYSQLI_ASSOC);
     .modal-content { background-color: white; margin: 10% auto; padding: 20px; border-radius: 5px; width: 50%; }
     .close { float: right; font-size: 24px; cursor: pointer; }
 </style>
+
+<!-- <script src="../student-js/submit_exam.js"></script> -->
