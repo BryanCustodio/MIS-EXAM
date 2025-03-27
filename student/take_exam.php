@@ -46,6 +46,7 @@ $exams = $examResult->fetch_all(MYSQLI_ASSOC);
         </div>
     </div>
 
+    <!-- Modal for Exam -->
     <div id="examModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -62,13 +63,20 @@ $exams = $examResult->fetch_all(MYSQLI_ASSOC);
         $(document).ready(function () {
             $(".box").click(function () {
                 var examId = $(this).data("exam-id");
+                console.log("Exam ID Clicked:", examId);
 
                 $.ajax({
                     url: "../student-function/fetch_exam.php",
                     type: "POST",
                     data: { exam_id: examId },
                     success: function (response) {
+                        console.log("Response from fetch_exam.php:", response);
                         var data = JSON.parse(response);
+                        if (data.error) {
+                            alert(data.error);
+                            return;
+                        }
+
                         $("#examTitle").text(data.exam_name);
                         $("#exam_id").val(examId);
 
@@ -115,16 +123,16 @@ $exams = $examResult->fetch_all(MYSQLI_ASSOC);
 </body>
 </html>
 
-
 <style>
     .exam-container { text-align: center; padding: 20px; }
     .exam-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; justify-content: center; margin: 20px auto; max-width: 800px; }
     .box { width: 100%; height: 120px; background-color: #f0f0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; transition: 0.3s; }
     .box:hover { background-color: #ddd; }
     .join-text { font-size: 12px; color: gray; margin-top: 5px; }
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); }
-    .modal-content { background-color: white; margin: 10% auto; padding: 20px; border-radius: 5px; width: 50%; }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; }
+    .modal-content { background-color: white; padding: 20px; border-radius: 5px; width: 50%; }
     .close { float: right; font-size: 24px; cursor: pointer; }
 </style>
+
 
 <!-- <script src="../student-js/submit_exam.js"></script> -->
