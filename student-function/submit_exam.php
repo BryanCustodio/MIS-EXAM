@@ -160,8 +160,8 @@ try {
     $conn->commit();
 
     // Calculate score
-    $score = round(($correct_answers / $total_questions) * 100, 2);
-    echo json_encode(["status" => "success", "message" => "Exam submitted successfully! Your score: $score%"]);
+    // $score = round(($correct_answers / $total_questions) * 100, 2);
+    echo json_encode(["status" => "success", "message" => "Exam submitted successfully!"]);
 } catch (Exception $e) {
     $conn->rollback();
     echo json_encode(["status" => "error", "message" => "Failed to submit exam. Please try again."]);
