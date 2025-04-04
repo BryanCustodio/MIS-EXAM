@@ -33,6 +33,7 @@
 include '../db/dbcon.php'; // Adjust your database connection file
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $subject_id = $_POST['subject_id'];
     $question_text = $_POST['question_text'];
     $option_a = $_POST['option_a'];
     $option_b = $_POST['option_b'];
@@ -40,13 +41,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $option_d = $_POST['option_d'];
     $correct_option = $_POST['correct_option'];
 
-    $query = "INSERT INTO questions (question_text, option_a, option_b, option_c, option_d, correct_option) 
-              VALUES ('$question_text', '$option_a', '$option_b', '$option_c', '$option_d', '$correct_option')";
+    $query = "INSERT INTO questions (subject_id, question_text, option_a, option_b, option_c, option_d, correct_option) 
+              VALUES ('$subject_id','$question_text', '$option_a', '$option_b', '$option_c', '$option_d', '$correct_option')";
 
     if ($conn->query($query) === TRUE) {
         $new_id = $conn->insert_id; // Get the last inserted ID
         echo json_encode([
             "id" => $new_id,
+            "subject_id" => $subject_id,
             "question_text" => $question_text,
             "option_a" => $option_a,
             "option_b" => $option_b,

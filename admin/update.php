@@ -133,19 +133,21 @@ include '../db/dbcon.php';
 <div class="table-container">
     <h2 style="color: #333;">Multiple Choice</h2><br>
     <form id="addQuestionForm" method="POST" action="../function/add-multiple.php" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
-        <input type="text" name="question_text" placeholder="Enter question" required style="flex: 1; min-width: 200px;">
-        <input type="text" name="option_a" placeholder="Option A" required style="flex: 1; min-width: 100px;">
-        <input type="text" name="option_b" placeholder="Option B" required style="flex: 1; min-width: 100px;">
-        <input type="text" name="option_c" placeholder="Option C" required style="flex: 1; min-width: 100px;">
-        <input type="text" name="option_d" placeholder="Option D" required style="flex: 1; min-width: 100px;">
-        <select name="correct_option" required>
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-            <option value="D">D</option>
-        </select>
-        <button type="submit" style="background: #00929E; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">Add Question</button>
-    </form>
+    <?php echo get_subject_dropdown(); ?>
+    <input type="text" name="question_text" placeholder="Enter question" required style="flex: 1; min-width: 200px;">
+    <input type="text" name="option_a" placeholder="Option A" required style="flex: 1; min-width: 100px;">
+    <input type="text" name="option_b" placeholder="Option B" required style="flex: 1; min-width: 100px;">
+    <input type="text" name="option_c" placeholder="Option C" required style="flex: 1; min-width: 100px;">
+    <input type="text" name="option_d" placeholder="Option D" required style="flex: 1; min-width: 100px;">
+    <select name="correct_option" required>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+    </select>
+    <button type="submit" style="background: #00929E; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">Add Question</button>
+</form>
+
 
      <table id="questionsTable" class="display responsive nowrap compact">
         <thead>
@@ -277,6 +279,7 @@ $(document).on('click', '.edit-btn', function () {
 <div class="table-container">
     <h2 style="color: #333;">Identification</h2><br>
     <form id="addIdentificationForm" method="POST" action="../function/add-identification.php" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+        <?php echo get_subject_dropdown(); ?>
         <input type="text" name="identification_text" placeholder="Enter identification question" required style="flex: 1; min-width: 300px;">
         <input type="text" name="answer" placeholder="Enter correct answer" required style="flex: 1; min-width: 200px;">
         <button type="submit" style="background: #00929E; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">Add Question</button>
@@ -385,6 +388,7 @@ $(document).ready(function () {
 <div class="table-container">
     <h2 style="color: #333;">Enumeration</h2><br>
     <form id="addEnumForm" method="POST" action="../function/add-enumeration.php" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+        <?php echo get_subject_dropdown(); ?>
         <input type="text" name="enum_question" placeholder="Enter enumeration question" required style="flex: 1; min-width: 300px;">
         <textarea name="enum_answers" placeholder="Enter correct answers (comma-separated)" required style="flex: 1; min-width: 300px;"></textarea>
         <button type="submit" style="background: #00929E; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">Add Question</button>
@@ -497,6 +501,143 @@ $(document).ready(function () {
 });
 </script>
 <!-- End Enumiration Responsive Table Wrapper -->
+
+<!-- Subject Management Section -->
+<div class="table-container">
+    <h2 style="color: #333;">Manage Subjects</h2><br>
+    <form id="addSubjectForm" method="POST" action="../function/add-subject.php" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+        <input type="text" name="subject_name" placeholder="Enter subject name" required style="flex: 1; min-width: 300px;">
+        <button type="submit" style="background: #00929E; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">Add Subject</button>
+    </form>
+
+    <table id="subjectsTable" class="display responsive nowrap compact">
+        <thead>
+            <tr>
+                <th style="text-align: center;">ID</th>
+                <th style="text-align: center;">Subject Name</th>
+                <th style="text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $query = $conn->query("SELECT * FROM title ORDER BY subject_name");
+            while ($row = $query->fetch_assoc()) {
+                echo "<tr id='subject_row_{$row['id']}'>
+                    <td>{$row['id']}</td>
+                    <td>{$row['subject_name']}</td>
+                    <td>
+                        <button class='btn subject-edit-btn' data-id='{$row['id']}'>Edit</button>
+                        <button class='btn subject-delete-btn' data-id='{$row['id']}'>Delete</button>
+                    </td>
+                </tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function() {
+    var table = $('#subjectsTable').DataTable({
+        responsive: true,
+        autoWidth: false,
+        pageLength: 5
+    });
+    
+    // Edit button functionality for subjects
+    $(document).on('click', '.subject-edit-btn', function() {
+        var row = $(this).closest('tr');
+        var subjectId = $(this).data('id');
+        
+        if ($(this).text() === "Edit") {
+            var subjectName = row.find('td:eq(1)').text().trim();
+            row.find('td:eq(1)').html(`<input type="text" class="subject-edit-input" value="${subjectName}">`);
+            
+            $(this).text("Save").removeClass("subject-edit-btn").addClass("subject-save-btn");
+            row.find(".subject-delete-btn").text("Cancel").removeClass("subject-delete-btn").addClass("subject-cancel-btn");
+        }
+    });
+    
+    // Save button functionality for subjects
+    $(document).on('click', '.subject-save-btn', function() {
+        var row = $(this).closest('tr');
+        var subjectId = $(this).data('id');
+        var subjectName = row.find('.subject-edit-input').val();
+        
+        $.ajax({
+            url: '../function/edit-subject.php',
+            type: 'POST',
+            data: {
+                id: subjectId,
+                subject_name: subjectName
+            },
+            success: function(response) {
+                if (response === "success") {
+                    row.find('td:eq(1)').text(subjectName);
+                    row.find('.subject-save-btn').text("Edit").removeClass("subject-save-btn").addClass("subject-edit-btn");
+                    row.find('.subject-cancel-btn').text("Delete").removeClass("subject-cancel-btn").addClass("subject-delete-btn");
+                } else {
+                    alert("Error updating subject!");
+                }
+            }
+        });
+    });
+    
+    // Cancel button functionality for subjects
+    $(document).on('click', '.subject-cancel-btn', function() {
+        var row = $(this).closest('tr');
+        var originalText = row.find('.subject-edit-input').val();
+        row.find('td:eq(1)').text(originalText);
+        
+        row.find('.subject-save-btn').text("Edit").removeClass("subject-save-btn").addClass("subject-edit-btn");
+        $(this).text("Delete").removeClass("subject-cancel-btn").addClass("subject-delete-btn");
+    });
+    
+    // Delete button functionality for subjects
+    $(document).on('click', '.subject-delete-btn', function() {
+        var subjectId = $(this).data('id');
+        var row = $(this).closest('tr');
+        
+        if (confirm("Are you sure you want to delete this subject? This will also delete all questions associated with this subject.")) {
+            $.ajax({
+                url: '../function/delete-subject.php',
+                type: 'POST',
+                data: { id: subjectId },
+                success: function(response) {
+                    if (response === "success") {
+                        row.remove();
+                    } else {
+                        alert("Error deleting subject!");
+                    }
+                }
+            });
+        }
+    });
+});
+</script>
+
+
+<?php
+function get_subject_dropdown($selected_id = null) {
+    global $conn;
+    
+    $output = '<select name="subject_id" required class="subject-dropdown">';
+    $output .= '<option value="">Select Subject</option>';
+    
+    $query = "SELECT id, subject_name FROM title ORDER BY subject_name";
+    $result = $conn->query($query);
+    
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $selected = ($selected_id == $row['id']) ? 'selected' : '';
+            $output .= '<option value="' . $row['id'] . '" ' . $selected . '>' . htmlspecialchars($row['subject_name']) . '</option>';
+        }
+    }
+    
+    $output .= '</select>';
+    return $output;
+}
+?>
 
 
 <!-- Start Script Multiple Choice -->
