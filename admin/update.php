@@ -152,6 +152,7 @@ include '../db/dbcon.php';
      <table id="questionsTable" class="display responsive nowrap compact">
         <thead>
         <tr>
+    <th style="text-align: center;">Subject</th>
     <th style="text-align: center;">Question</th>
     <th style="text-align: center;">A</th>
     <th style="text-align: center;">B</th>
@@ -167,6 +168,7 @@ include '../db/dbcon.php';
             $query = $conn->query("SELECT * FROM questions WHERE question_type = 'multiple_choice'");
             while ($row = $query->fetch_assoc()) {
                 echo "<tr id='row_{$row['id']}'>
+                    <td>{$row['subject_id']}</td>
                     <td>{$row['question_text']}</td>
                     <td>{$row['option_a']}</td>
                     <td>{$row['option_b']}</td>
@@ -187,74 +189,88 @@ include '../db/dbcon.php';
 <script>
 // Edit button functionality
 $(document).on('click', '.edit-btn', function () {
-        var row = $(this).closest('tr');
-        var questionID = $(this).data('id');
+    var row = $(this).closest('tr');
+    var questionID = $(this).data('id');
 
-        if ($(this).text() === "Edit") {
-            // Convert cells to input fields
-            row.find('td:not(:last-child)').each(function (index) {
-                var originalText = $(this).text().trim();
-                if (index === 5) { // Correct Option (Dropdown)
-                    $(this).html(`
-                        <select class="edit-correct">
-                            <option value="A" ${originalText === 'A' ? 'selected' : ''}>A</option>
-                            <option value="B" ${originalText === 'B' ? 'selected' : ''}>B</option>
-                            <option value="C" ${originalText === 'C' ? 'selected' : ''}>C</option>
-                            <option value="D" ${originalText === 'D' ? 'selected' : ''}>D</option>
-                        </select>
-                    `);
-                } else {
-                    $(this).html(`<input type="text" class="edit-input" value="${originalText}">`);
-                }
-            });
-
-            // Change button text
-            $(this).text("Save").removeClass("edit-btn").addClass("save-btn");
-            row.find(".delete-btn").text("Cancel").removeClass("delete-btn").addClass("cancel-btn");
-        }
-    });
-
-    // Save button functionality
-    $(document).on('click', '.save-btn', function () {
-        var row = $(this).closest('tr');
-        var questionID = $(this).data('id');
-
-        // Get updated values
-        var updatedData = {
-            id: questionID,
-            question_text: row.find('.edit-input').eq(0).val(),
-            option_a: row.find('.edit-input').eq(1).val(),
-            option_b: row.find('.edit-input').eq(2).val(),
-            option_c: row.find('.edit-input').eq(3).val(),
-            option_d: row.find('.edit-input').eq(4).val(),
-            correct_option: row.find('.edit-correct').val()
-        };
-
-        // AJAX request to update the database
-        $.ajax({
-            url: '../function/dynamic-edit-multiple.php',
-            type: 'POST',
-            data: updatedData,
-            success: function (response) {
-                if (response === "success") {
-                    // Replace input fields with updated text
-                    row.find('td:not(:last-child)').each(function (index) {
-                        if (index === 5) { // Correct option
-                            $(this).text(updatedData.correct_option);
-                        } else {
-                            $(this).text(Object.values(updatedData)[index + 1]);
-                        }
-                    });
-
-                    // Restore button states
-                    row.find('.save-btn').text("Edit").removeClass("save-btn").addClass("edit-btn");
-                    row.find('.cancel-btn').text("Delete").removeClass("cancel-btn").addClass("delete-btn");
-                } else {
-                    alert("Error updating data!");
-                }
+    if ($(this).text() === "Edit") {
+        // Convert cells to input fields
+        row.find('td:not(:last-child)').each(function (index) {
+            var originalText = $(this).text().trim();
+            if (index === 0) { // Subject field - make it disabled
+                $(this).html(`<input type="text" class="edit-input" value="${originalText}" disabled style="background-color: #f0f0f0;">`);
+            } else if (index === 6) { // Correct Option (Dropdown)
+                $(this).html(`
+                    <select class="edit-correct">
+                        <option value="A" ${originalText === 'A' ? 'selected' : ''}>A</option>
+                        <option value="B" ${originalText === 'B' ? 'selected' : ''}>B</option>
+                        <option value="C" ${originalText === 'C' ? 'selected' : ''}>C</option>
+                        <option value="D" ${originalText === 'D' ? 'selected' : ''}>D</option>
+                    </select>
+                `);
+            } else {
+                $(this).html(`<input type="text" class="edit-input" value="${originalText}">`);
             }
         });
+
+        // Change button text
+        $(this).text("Save").removeClass("edit-btn").addClass("save-btn");
+        row.find(".delete-btn").text("Cancel").removeClass("delete-btn").addClass("cancel-btn");
+    }
+});
+
+
+
+// Save button functionality
+$(document).on('click', '.save-btn', function () {
+    var row = $(this).closest('tr');
+    var questionID = $(this).data('id');
+    
+    // Get all input values from the row
+    var inputs = row.find('.edit-input');
+    var subjectId = inputs.eq(0).val(); // First input (disabled)
+    
+    // Get updated values
+    var updatedData = {
+        id: questionID,
+        subject_id: subjectId,
+        question_text: inputs.eq(1).val(),
+        option_a: inputs.eq(2).val(),
+        option_b: inputs.eq(3).val(),
+        option_c: inputs.eq(4).val(),
+        option_d: inputs.eq(5).val(),
+        correct_option: row.find('.edit-correct').val()
+    };
+
+    // AJAX request to update the database
+    $.ajax({
+        url: '../function/dynamic-edit-multiple.php',
+        type: 'POST',
+        data: updatedData,
+        success: function (response) {
+            if (response === "success") {
+                // Replace input fields with updated text
+                row.find('td').eq(0).text(subjectId);
+                row.find('td').eq(1).text(updatedData.question_text);
+                row.find('td').eq(2).text(updatedData.option_a);
+                row.find('td').eq(3).text(updatedData.option_b);
+                row.find('td').eq(4).text(updatedData.option_c);
+                row.find('td').eq(5).text(updatedData.option_d);
+                row.find('td').eq(6).text(updatedData.correct_option);
+
+                // Restore button states
+                row.find('.save-btn').text("Edit").removeClass("save-btn").addClass("edit-btn");
+                row.find('.cancel-btn').text("Delete").removeClass("cancel-btn").addClass("delete-btn");
+            } else {
+                alert("Error updating data!");
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("AJAX Error:", error);
+            alert("Error updating data. See console for details.");
+        }
     });
+});
+
 
     // Cancel button functionality (restore original data)
     $(document).on('click', '.cancel-btn', function () {
@@ -288,6 +304,7 @@ $(document).on('click', '.edit-btn', function () {
     <table id="identificationTable" class="display responsive nowrap compact">
         <thead>
             <tr>
+                <th style="text-align: center;">Subject</th>
                 <th style="text-align: center;">Question</th>
                 <th style="text-align: center;">Answer</th>
                 <th style="text-align: center;">Actions</th>
@@ -298,6 +315,7 @@ $(document).on('click', '.edit-btn', function () {
             $query = $conn->query("SELECT * FROM questions WHERE question_type = 'identification'");
             while ($row = $query->fetch_assoc()) {
                 echo "<tr id='identification_row_{$row['id']}'>
+                    <td>{$row['subject_id']}</td>
                     <td>{$row['question_text']}</td>
                     <td>{$row['answer']}</td>
                     <td>
@@ -397,6 +415,7 @@ $(document).ready(function () {
     <table id="enumTable" class="display responsive nowrap compact">
         <thead>
             <tr>
+                <th style="text-align: center;">Subject</th>
                 <th style="text-align: center;">Question</th>
                 <th style="text-align: center;">Answers</th>
                 <th style="text-align: center;">Actions</th>
@@ -407,6 +426,7 @@ $(document).ready(function () {
             $query = $conn->query("SELECT * FROM questions WHERE question_type = 'enumeration'");
             while ($row = $query->fetch_assoc()) {
                 echo "<tr id='enumRow_{$row['id']}'>
+                    <td>{$row['subject_id']}</td>
                     <td>{$row['question_text']}</td>
                     <td>{$row['answer']}</td>
                     <td>
@@ -513,7 +533,6 @@ $(document).ready(function () {
     <table id="subjectsTable" class="display responsive nowrap compact">
         <thead>
             <tr>
-                <th style="text-align: center;">ID</th>
                 <th style="text-align: center;">Subject Name</th>
                 <th style="text-align: center;">Actions</th>
             </tr>
@@ -523,7 +542,6 @@ $(document).ready(function () {
             $query = $conn->query("SELECT * FROM title ORDER BY subject_name");
             while ($row = $query->fetch_assoc()) {
                 echo "<tr id='subject_row_{$row['id']}'>
-                    <td>{$row['id']}</td>
                     <td>{$row['subject_name']}</td>
                     <td>
                         <button class='btn subject-edit-btn' data-id='{$row['id']}'>Edit</button>

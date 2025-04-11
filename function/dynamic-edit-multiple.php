@@ -28,6 +28,7 @@ include '../db/dbcon.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = $_POST['id'];
+    $student_id = $_POST['student_id'];
     $question_text = $_POST['question_text'];
     $option_a = $_POST['option_a'];
     $option_b = $_POST['option_b'];
@@ -36,6 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $correct_option = $_POST['correct_option'];
 
     $query = "UPDATE questions SET 
+                student_id = '$student_id',
                 question_text = '$question_text', 
                 option_a = '$option_a', 
                 option_b = '$option_b', 
